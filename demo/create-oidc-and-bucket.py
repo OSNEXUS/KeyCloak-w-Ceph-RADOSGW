@@ -9,7 +9,7 @@ from os.path import exists
 from subprocess import run, PIPE
 
 if len(sys.argv) != 12:
-    print("Usage: script.py <s3-server> <realm-name> <region> <iam-client-id> <iam-client-password> <sts-client-id> <sts-client-password> <kc_server> <kc-client-id> <kc-client-secret> <thumbprint-file>")
+    print("Usage: script.py <s3-server> <realm-name> <region> <iam-client-id> <iam-client-password> <sts-client-id> <sts-client-password> <kc-server> <kc-client-id> <kc-client-secret> <thumbprint-file>")
     sys.exit(1)
 
 s3_server = sys.argv[1]

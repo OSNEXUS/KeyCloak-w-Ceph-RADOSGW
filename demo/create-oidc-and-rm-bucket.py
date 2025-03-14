@@ -243,13 +243,13 @@ s3client = boto3.client('s3',
     region_name='us-west-1',
 )
 
-print("Creating bucket using the s3 client...")
+print("Deleting bucket using the s3 client...")
 try:
     bucket_name = 'my-bucket'
-    s3bucket = s3client.create_bucket(Bucket=bucket_name)
+    s3bucket = s3client.delete_bucket(Bucket=bucket_name)
     resp = s3client.list_buckets()
-    print("Successfully created bucket to end point '"+s3_endpoint+"'.")
+    print("Successfully deleted bucket to end point '"+s3_endpoint+"'.")
 except Exception as e:
-    print("An exception was thrown while creating a bucket with assumed role by web identity.")
+    print("An exception was thrown while deleting a bucket with assumed role by web identity.")
     print(e)
     exit()

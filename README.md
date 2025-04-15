@@ -78,8 +78,22 @@ radosgw-admin caps add --uid="STS_CLIENT" --caps="roles=*"
 **Purpose:** Uses the OIDC/STS protocols to assume the `S3Access` role and create or delete a bucket with a given name. This python script is a culmination of the operations that are performed by the scripts in the `scripts` directory.\
 **Usage:**
 ```bash
-python3 oidc_bucket.py <operation: create|delete> <bucket_name> <s3_compatible_endpoint> <oidc_app_endpoint> <oidc_token_endpoint> <oidc_config_endpoint> <region> <iam_client_id> <iam_client_password> <access_token_scope> <sts_client_id> <sts_client_password> <kc_client_id> <kc_client_secret>
+python3 oidc_bucket.py <operation: create|delete> <bucket_name> <s3_compatible_endpoint> <oidc_app_endpoint> <oidc_token_endpoint> <oidc_config_endpoint> <region> <iam_client_id> <iam_client_password> <access_token_scope> <sts_client_id> <sts_client_password> <oidc_client_id> <oidc_client_secret>
 ```
+- **operation** - `create` or `delete` bucket.
+- **bucket_name** - Name of the bucket to `create` or `delete`.
+- **s3_compatible_endpoint** - S3 endpoint to perform operation on.
+- **oidc_app_endpoint** - Base end point for identity provider domain
+- **oidc_token_endpoint** - Token end point for identity provider
+- **oidc_config_endpoint** - OIDC configuration end point for identity provider
+- **region** - Target region for S3 compatable operation
+- **iam_client_id** - IAM client target user. S3 compatable user with caps to modify oidc-providers
+- **iam_client_password** - IAM client password
+- **access_token_scope** - Most identity providers need `openid` scope. Azure requires `<client-uuid>/.default`
+- **sts_client_id** - STS client target user. S3 compatable user with caps to perform role operations. Will call AssumeRoleWithWebIdentity() API.
+- **sts_client_password** - STS client password.
+- **oidc_client_id** - OIDC client ID, you can usually figure this out through the admin portal of your OIDC.
+- **oidc_client_secret** - OIDC client secret.
 **Example:**
 
 ```bash

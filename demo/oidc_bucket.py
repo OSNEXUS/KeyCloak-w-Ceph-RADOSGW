@@ -106,7 +106,7 @@ def validate_args(bucket_name,s3_compatable_endpoint,oidc_app_endpoint,oidc_toke
 
 if len(sys.argv) != 15:
     print("Usage: create-oidc-and-bucket.py <operation: create|delete> <bucket_name> <s3_compatible_endpoint> <oidc_app_endpoint> <oidc_token_endpoint> <oidc_config_endpoint> <region> " +
-          "<iam_client_id> <iam_client_password> <access_token_scope> <sts_client_id> <sts_client_password> <kc_client_id> <kc_client_secret>")
+          "<iam_client_id> <iam_client_password> <access_token_scope> <sts_client_id> <sts_client_password> <oidc_client_id> <oidc_client_secret>")
     sys.exit(1)
 
 operation = sys.argv[1]

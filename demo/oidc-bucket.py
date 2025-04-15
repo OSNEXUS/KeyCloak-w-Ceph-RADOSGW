@@ -33,17 +33,6 @@ def get_jwks_uri(oidc_config_endpoint):
         print(f"Error: Could not retrieve 'jwks_uri'. {e}")
         exit(1)
 
-# def get_certificates(jwks_uri,token_kid):
-#     """Retrieve all certificates from the JWKS URI."""
-#     try:
-#         response = requests.get(jwks_uri, headers={"Content-Type": "application/x-www-form-urlencoded"}, verify=False)
-#         response.raise_for_status()
-#         keys = response.json().get("keys", [])
-#         return [cert for key in keys if key.get("kid") == token_kid for cert in key.get("x5c", [])]
-#     except (requests.RequestException, ValueError) as e:
-#         print(f"Error: Could not retrieve certificates. {e}")
-#         exit(1)
-
 def get_certificates(jwks_uri):
     """Retrieve all x5c certificate values from the JWKS URI."""
     try:
@@ -92,8 +81,6 @@ def save_thumbprints(certs):
     with open(THUMBPRINT_FILE, "w") as f:
         for index, cert_b64 in enumerate(certs, start=1):
             print(f"Generating thumbprint for certificate {index}....")
-            #thumbprint = generate_rs256_thumbprint(cert_b64)
-            #thumbprint = generate_thumbprint_sha256(cert_b64)
             thumbprint = generate_thumbprint_sha1(cert_b64)
             f.write(f"{thumbprint}\n")
 
@@ -117,26 +104,32 @@ def validate_args(bucket_name,s3_compatable_endpoint,oidc_app_endpoint,oidc_toke
     print(f"oidc_client_secret: {oidc_client_secret}")
     return
 
-if len(sys.argv) != 14:
-    print("Usage: script.py <bucket_name> <s3_compatable_endpoint> <oidc_app_endpoint> <oidc_token_endpoint> <oidc_config_endpoint> <region> " +
-          "<iam_client_id> <iam_client_password> <sts_client_id> <sts_client_password> <kc_client_id> <kc_client_secret>")
+if len(sys.argv) != 15:
+    print("Usage: create-oidc-and-bucket.py <operation: create|delete> <bucket_name> <s3_compatible_endpoint> <oidc_app_endpoint> <oidc_token_endpoint> <oidc_config_endpoint> <region> " +
+          "<iam_client_id> <iam_client_password> <access_token_scope> <sts_client_id> <sts_client_password> <kc_client_id> <kc_client_secret>")
     sys.exit(1)
 
-bucket_name = sys.argv[1]
-s3_compatable_endpoint = sys.argv[2]
-oidc_app_endpoint = sys.argv[3]
-oidc_token_endpoint = sys.argv[4]
-oidc_config_endpoint = sys.argv[5]
-region = sys.argv[6]
-iam_client_id = sys.argv[7]
-iam_client_password = sys.argv[8]
-access_token_scope = sys.argv[9]
-sts_client_id = sys.argv[10]
-sts_client_password = sys.argv[11]
-oidc_client_id = sys.argv[12]
-oidc_client_secret = sys.argv[13]
+operation = sys.argv[1]
+if operation not in ['create', 'delete']:
+    print("Error: <operation> must be either 'create' or 'delete'")
+    sys.exit(1)
+
+bucket_name = sys.argv[2]
+s3_compatable_endpoint = sys.argv[3]
+oidc_app_endpoint = sys.argv[4]
+oidc_token_endpoint = sys.argv[5]
+oidc_config_endpoint = sys.argv[6]
+region = sys.argv[7]
+iam_client_id = sys.argv[8]
+iam_client_password = sys.argv[9]
+access_token_scope = sys.argv[10]
+sts_client_id = sys.argv[11]
+sts_client_password = sys.argv[12]
+oidc_client_id = sys.argv[13]
+oidc_client_secret = sys.argv[14]
 
 args = {
+    "Operation": operation,
     "Bucket Name": bucket_name,
     "S3 compatable Endpoint": s3_compatable_endpoint,
     "OIDC App Endpoint": oidc_app_endpoint,
@@ -164,7 +157,7 @@ iam_client = boto3.client('iam',
     region_name=''
 )
 
-#create an sts client to generate an access
+# create an sts client to consume access token via ceph rgw
 sts_client = boto3.client('sts',
     aws_access_key_id=sts_client_id,
     aws_secret_access_key=sts_client_password,
@@ -172,7 +165,7 @@ sts_client = boto3.client('sts',
     region_name='',
 )
 
-
+# build access token request
 headers = {
     "Content-Type": "application/x-www-form-urlencoded"
 }
@@ -184,29 +177,31 @@ data = {
     "client_secret": oidc_client_secret
 }
 
+# request access token from oidc token endpoint
 print("Getting access token at URL '"+oidc_token_endpoint+"' for client '"+oidc_client_id+"'")
 try:
     response = requests.post(oidc_token_endpoint, headers=headers, data=data, verify=False)  # `verify=False` for `-k` in curl
     response.raise_for_status()  # Raise an exception for HTTP errors
-    print(json.dumps(response.json(), indent=4))       # `jq .` equivalent for JSON output
+    #print(json.dumps(response.json(), indent=4))       # `jq .` equivalent for JSON output
     access_token = response.json().get('access_token')
 except requests.exceptions.RequestException as e:
     print(f"Error: {e}")
     exit()
-
 print(access_token)
 
+
 header, payload, signature = access_token.split(".")
-decoded_token_header = base64.urlsafe_b64decode(header + "==").decode("utf-8")
-decoded_token_payload = base64.urlsafe_b64decode(payload + "==").decode("utf-8")
-
 # Parse JSON
+decoded_token_header = base64.urlsafe_b64decode(header + "==").decode("utf-8")
 token_header_json = json.loads(decoded_token_header)
-token_payload_json = json.loads(decoded_token_payload)
 
-print(json.dumps(token_header_json, indent=4))
-print(json.dumps(token_payload_json, indent=4))
+# DEBUG - uncomment below to print decoded token header and payload
+# decoded_token_payload = base64.urlsafe_b64decode(payload + "==").decode("utf-8")
+# token_payload_json = json.loads(decoded_token_payload)
+# print(json.dumps(token_header_json, indent=4))
+# print(json.dumps(token_payload_json, indent=4))
 
+# save the key id for later use
 token_kid=token_header_json["kid"]
 
 oidcArn=''
@@ -233,28 +228,28 @@ except Exception as e:
     print(e)
 
 # You can Verify creation from the CLI using:
-# aws --endpoint=http://10.0.26.140:7480/ iam list-open-id-connect-providers --region=""
-# aws --endpoint=http://10.0.26.140:7480/ iam get-open-id-connect-provider --open-id-connect-provider-arn="arn:aws:iam:::oidc-provider/10.0.26.1:8080/auth/realms/quickstart" --region=""
+# aws --endpoint=http://x.x.x.x:7480/ iam list-open-id-connect-providers --region=""
+# aws --endpoint=http://x.x.x.x:7480/ iam get-open-id-connect-provider --open-id-connect-provider-arn="arn:aws:iam:::oidc-provider/y.y.y.y:8080/auth/realms/quickstart" --region=""
 print("create_open_id_connect_provider() OpenIDConnectProvider Url: "+oidc_app_endpoint+" key cloak client: "+oidc_client_id)
+
+# use the wellknown config endpoint to get the JSON web key uri
 jwks_uri = get_jwks_uri(oidc_config_endpoint)
 if not jwks_uri:
     print("Error: Could not retrieve 'jwks_uri'.")
     exit(1)
 
+# generate certs for each of the web keys avaiable
 print(f"\nProcessing URI: {jwks_uri}")
 certs = get_certificates(jwks_uri)
-#prints = get_thumbprints(jwks_uri,token_kid)
 
-print(f"{certs}")
-#print(f"{prints}")
+# generate a thumbprint file
 save_thumbprints(certs)
-#save_thumbprints(prints)
-
 
 with open(THUMBPRINT_FILE, "r") as file:
     ThumbprintListIn = [line.strip() for line in file if line.strip()]
 print(ThumbprintListIn)
 
+# create open id connect provider using the acquired thumbprints for your oidc client id
 try:
     oidc_response = iam_client.create_open_id_connect_provider(
         Url=oidc_app_endpoint,
@@ -275,6 +270,7 @@ try:
 except Exception as e:
     print(e)
 
+# delete existing role policy, if it already exists.
 print("delete_role_policy() Policy name '"+ROLE_POLICY_NAME+"'.")
 try:
     role_response = iam_client.delete_role_policy(
@@ -285,6 +281,7 @@ try:
 except Exception as e:
     print(e)
 
+# delete the role if it already exists
 print("\ndelete_role() RoleName '"+S3_ACCESS_ROLE_NAME+"'.")
 try:
     role_response = iam_client.delete_role(
@@ -313,6 +310,7 @@ except Exception as e:
 # this policy will allow s3access role to perform s3 operations
 role_policy = '''{"Version":"2012-10-17","Statement":{"Effect":"Allow","Action":"s3:*","Resource":"arn:aws:s3:::*"}}'''
 
+# Add new policy Policy-1
 print("Adding policy document to role "+S3_ACCESS_ROLE_NAME+"...")
 try:
     response = iam_client.put_role_policy(
@@ -324,6 +322,7 @@ try:
 except Exception as e:
     print(e)
 
+# verify creation of new role.
 print("getting role s3access...")
 try:
     get_response = iam_client.get_role(RoleName=S3_ACCESS_ROLE_NAME)
@@ -332,7 +331,8 @@ try:
 except Exception as e:
     print(e)
 
-# you need to run this before the token expires default token expires in 1 min
+# This is probably the most important API call. AssumeRoleWithWebIdentity allows us to consume the access token to get a session token to be
+# you need to run this before the token expires default token expires
 roleArn = get_response['Role']['Arn']
 print("sts client is calling assume_role_with_web_identity() role arn: '"+roleArn+"'...")
 try:
@@ -375,7 +375,7 @@ except Exception as e:
     exit()
 
 #Set up the S3 client using the new credentials
-s3client = boto3.client('s3',
+s3Compatclient = boto3.client('s3',
     aws_access_key_id = response['Credentials']['AccessKeyId'],
     aws_secret_access_key = response['Credentials']['SecretAccessKey'],
     aws_session_token = response['Credentials']['SessionToken'],
@@ -383,14 +383,20 @@ s3client = boto3.client('s3',
     region_name=region,
 )
 
-print("Creating bucket using the s3 client...")
+print(f"{operation.capitalize()}ing bucket using the S3 client...")
 try:
-    s3bucket = s3client.create_bucket(Bucket=bucket_name)
-    print(f"{s3bucket}")
-    resp = s3client.list_buckets()
-    print(f"{resp}")
-    print("Successfully created bucket to end point '"+s3_compatable_endpoint+"'.")
+    if operation == 'create':
+        s3bucket = s3Compatclient.create_bucket(Bucket=bucket_name)
+        print(s3bucket)
+        resp = s3Compatclient.list_buckets()
+        print(resp)
+        print(f"Successfully created bucket on endpoint '{s3_compatable_endpoint}'.")
+    
+    elif operation == 'delete':
+        s3Compatclient.delete_bucket(Bucket=bucket_name)
+        print(f"Successfully deleted bucket '{bucket_name}' from endpoint '{s3_compatable_endpoint}'.")
+    
 except Exception as e:
-    print("An exception was thrown while creating a bucket with assumed role by web identity.")
+    print(f"An exception was thrown while attempting to {operation} the bucket.")
     print(e)
     exit()

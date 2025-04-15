@@ -1,20 +1,7 @@
 #!/bin/bash
 
-## Check for required arguments (minimum 4, maximum 5)
-#if [ "$#" -lt 4 ] || [ "$#" -gt 5 ]; then
-#    echo "Usage: $0 <introspect-endpoint> <client> <client_secret> <server> [access_token_file]"
-#    exit 1
-#fi
-#
-## Assign arguments to variables
-#KC_REALM="$1"
-#KC_CLIENT="$2"
-#KC_CLIENT_SECRET="$3"
-#KC_SERVER="$4"
-#ACCESS_TOKEN_FILE="$5"
-
 if [ "$#" -ne 4 ]; then
-    echo "Usage: introspect_token_v2.sh <introspect-end-point> <client> <client_secret> <access_token_file>"
+    echo "Usage: introspect_token.sh <introspect-end-point> <client> <client_secret> <access_token_file>"
     exit 1
 fi
 

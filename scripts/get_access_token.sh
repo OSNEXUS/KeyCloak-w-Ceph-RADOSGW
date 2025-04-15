@@ -1,27 +1,49 @@
 #!/bin/bash
 
-if [ "$#" -lt 3 ] || [ "$#" -gt 5 ]; then
-    echo "Usage: get_access_token_v2.sh <token-end-point> <client> <client_secret> [scope,openid] [access_token_file]"
+if [ "$#" -lt 4 ] || [ "$#" -gt 6 ]; then
+    echo "Usage: get_access_token.sh <grant_type: password|client_credentials> <token-end-point> <client> <client_secret> [scope,openid] [access_token_file]"
     exit 1
 fi
 
-TOKEN_ENDPOINT="$1"
-OIDC_CLIENT="$2"
-OIDC_CLIENT_SECRET="$3"
-SCOPE="${4:-openid}"
-ACCESS_TOKEN_FILE="${5:-}"
+GRANT_TYPE="$1"
+TOKEN_ENDPOINT="$2"
+OIDC_CLIENT="$3"
+OIDC_CLIENT_SECRET="$4"
+SCOPE="${5:-openid}"
+ACCESS_TOKEN_FILE="${6:-}"
 
-# Request Tokens for credentials
-ACCESS_TOKEN_RESPONSE=$( \
-curl -s -k -X POST \
--H "Content-Type: application/x-www-form-urlencoded" \
--d "scope=$SCOPE" \
--d "grant_type=client_credentials" \
--d "client_id=$OIDC_CLIENT" \
--d "client_secret=$OIDC_CLIENT_SECRET" \
-"$TOKEN_ENDPOINT" 2>/dev/null 
-)
-echo $ACCESS_TOKEN_RESPONSE | jq
+# Validate grant_type
+if [ "$GRANT_TYPE" != "password" ] && [ "$GRANT_TYPE" != "client_credentials" ]; then
+    echo "Error: grant_type must be 'password' or 'client_credentials'"
+    exit 1
+fi
+
+if [ "$GRANT_TYPE" = "client_credentials" ]; then
+    ACCESS_TOKEN_RESPONSE=$(curl -s -k -X POST \
+        -H "Content-Type: application/x-www-form-urlencoded" \
+        -d "grant_type=client_credentials" \
+        -d "client_id=$OIDC_CLIENT" \
+        -d "client_secret=$OIDC_CLIENT_SECRET" \
+        -d "scope=$SCOPE" \
+        "$TOKEN_ENDPOINT")
+elif [ "$GRANT_TYPE" = "password" ]; then
+    # Prompt user for credentials
+    read -p "Username: " KC_USERNAME
+    read -s -p "Password: " KC_PASSWORD
+    echo
+
+    ACCESS_TOKEN_RESPONSE=$(curl -s -k -X POST \
+        -H "Content-Type: application/x-www-form-urlencoded" \
+        -d "grant_type=password" \
+        -d "client_id=$OIDC_CLIENT" \
+        -d "client_secret=$OIDC_CLIENT_SECRET" \
+        -d "username=$KC_USERNAME" \
+        -d "password=$KC_PASSWORD" \
+        -d "scope=$SCOPE" \
+        "$TOKEN_ENDPOINT")
+fi
+
+echo "$ACCESS_TOKEN_RESPONSE"
 
 # Handle token output
 if [ -n "$ACCESS_TOKEN_RESPONSE" ] && [ "$ACCESS_TOKEN_RESPONSE" != "null" ]; then

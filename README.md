@@ -33,7 +33,7 @@ introspect_token.sh <introspect-end-point> <client> <client_secret> <access_toke
 - **introspect-end-point** - introspection endpoint, available for various IDPs like KeyCloak '''Note:''' Some identity providers do not have this API.
 - **client** - Client ID of the OIDC client.
 - **client\_secret** - Secret key for OIDC client.
-- **[access\_token\_file]** - File containing the raw access token. This file can be generated using `kc_get_access_token.sh`.\
+- **[access\_token\_file]** - File containing the raw access token. This file can be generated using `get_access_token.sh`.\
   **Example:**
 ```bash
 ./introspect_token.sh http://key.cloak.com:8080/realms/ID-provider/protocol/openid-connect/token/introspect ceph-kc-client xxxxxxxxxxxxxxxxxxxxxxxxxxx access.file

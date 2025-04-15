@@ -1,6 +1,6 @@
 # KeyCloak with Ceph RADOSGW
 
-This repository contains a demo applications that utilizes the Amazon Boto3 Python library to create a Ceph Object Storage bucket. The `scripts` directory provides utility scripts to retrieve various access tokens from the Keycloak server, which are used by `create-oidc-and-bucket.py` & `create-oidc-and-rm-bucket.py for identity authentication.
+This repository contains a demo applications that utilizes the Amazon Boto3 Python library to create a Ceph Object Storage bucket. The `scripts` directory provides utility scripts to retrieve various access tokens from an OIDC provider server, which are used by Ceph RGW STS for identity authentication via the AssumeRoleWithWebIdentity API. AssumeRoleWithWebIdentity will return a session token which can be used by an s3 compatible module such as Pyhton's `boto3`.
 
 ## Scripts Overview
 

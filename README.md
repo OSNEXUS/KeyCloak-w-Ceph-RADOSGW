@@ -132,7 +132,7 @@ python3 create_oidc_provider.py <oidc_app_endpoint> <oidc_config_endpoint> <oidc
 - **[region]** - (Optional) Target region for S3 compatable operation. Defaults to ''.
 **Example:**
 ```bash
-python3 create_oidc_provider.py https://auth.keycloaktest.com:8443/realms/kc_id_broker https://auth.keycloaktest.com:8443/realms/kc_id_broker/.well-known/openid-configuration kc_idp http://x.x.x.x:7480 OIDC_PROVIDER test123
+python3 create_oidc_provider.py https://auth.test.com:8443/realms/kc_id_broker https://auth.test.com:8443/realms/kc_id_broker/.well-known/openid-configuration kc_idp http://x.x.x.x:7480 OIDC_PROVIDER test123
 ```
 
 ### `delete_oidc_provider.py`
@@ -149,7 +149,7 @@ python3 delete_oidc_provider.py <oidc_arn> <s3_compatible_endpoint> <iam_client_
 - **[region]** - (Optional) Target region for S3 compatable operation. Defaults to ''.
 **Example:**
 ```bash
-python3 delete_oidc_provider.py "arn:aws:iam:::oidc-provider/auth.keycloaktest.com:8443/realms/kc_id_broker" http://x.x.x.x:7480 OIDC_PROVIDER test123
+python3 delete_oidc_provider.py "arn:aws:iam:::oidc-provider/auth.test.com:8443/realms/kc_id_broker" http://x.x.x.x:7480 OIDC_PROVIDER test123
 ```
 
 ### `list_roles.py`
@@ -200,7 +200,7 @@ python3 create_oidc_provider_role.py <role_name> <oidc_app_endpoint> <s3_compati
 - **[region]** - (Optional) Target region for S3 compatable operation. Defaults to ''.
 **Example:**
 ```bash
-python3 create_oidc_provider_role.py S3Access https://auth.keycloaktest.com:8443/realms/kc_id_broker http://x.x.x.x:7480 OIDC_PROVIDER test123
+python3 create_oidc_provider_role.py S3Access https://auth.test.com:8443/realms/kc_id_broker http://x.x.x.x:7480 OIDC_PROVIDER test123
 ```
 
 ### `delete_oidc_provider_role.py`
@@ -294,8 +294,8 @@ python3 assume_role.py <operation: create|delete> <role_arn> <bucket_name> <oidc
 - **[region]** - (Optional) Target region for S3 compatable operation. Defaults to ''.
 **Example:**
 ```bash
-python3 assume_role.py create arn:aws:iam:::role/S3Access test-bucket-1 https://auth.keycloaktest.com:8443/realms/kc_id_broker/protocol/openid-connect/token idp_app xxxxxxxxxxxxxxxxxxxxxxx openid http://x.x.x.x:7480 STS_CLIENT test321 us-east-1
-python3 assume_role.py delete arn:aws:iam:::role/S3Access test-bucket-1 https://auth.keycloaktest.com:8443/realms/kc_id_broker/protocol/openid-connect/token idp_app xxxxxxxxxxxxxxxxxxxxxxx openid http://x.x.x.x:7480 STS_CLIENT test321 us-east-1
+python3 assume_role.py create arn:aws:iam:::role/S3Access test-bucket-1 https://auth.test.com:8443/realms/kc_id_broker/protocol/openid-connect/token idp_app xxxxxxxxxxxxxxxxxxxxxxx openid http://x.x.x.x:7480 STS_CLIENT test321 us-east-1
+python3 assume_role.py delete arn:aws:iam:::role/S3Access test-bucket-1 https://auth.test.com:8443/realms/kc_id_broker/protocol/openid-connect/token idp_app xxxxxxxxxxxxxxxxxxxxxxx openid http://x.x.x.x:7480 STS_CLIENT test321 us-east-1
 ```
 
 ## Additional Resources

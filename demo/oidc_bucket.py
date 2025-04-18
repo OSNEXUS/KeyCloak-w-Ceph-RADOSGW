@@ -18,7 +18,6 @@ from cryptography import x509
 from cryptography.hazmat.primitives import serialization
 
 
-
 THUMBPRINT_FILE = "thumbprints.txt"
 S3_ACCESS_ROLE_NAME = "S3Access"
 ROLE_POLICY_NAME = "Policy1"
@@ -147,9 +146,8 @@ args = {
 
 validate_args(bucket_name,s3_compatable_endpoint,oidc_app_endpoint,oidc_token_endpoint,oidc_config_endpoint,region,iam_client_id,iam_client_password,access_token_scope,sts_client_id,sts_client_password,oidc_client_id,oidc_client_secret)
 
-
 #iam client TESTER
-print("Creating IAM client...")
+print(f"Creating IAM client... access {iam_client_id} endpoint {s3_compatable_endpoint}")
 iam_client = boto3.client('iam',
     aws_access_key_id=iam_client_id,
     aws_secret_access_key=iam_client_password,
@@ -158,6 +156,7 @@ iam_client = boto3.client('iam',
 )
 
 # create an sts client to consume access token via ceph rgw
+print(f"Creating STS client... access {sts_client_id} endpoint {s3_compatable_endpoint}")
 sts_client = boto3.client('sts',
     aws_access_key_id=sts_client_id,
     aws_secret_access_key=sts_client_password,
@@ -250,6 +249,7 @@ with open(THUMBPRINT_FILE, "r") as file:
 print(ThumbprintListIn)
 
 # create open id connect provider using the acquired thumbprints for your oidc client id
+print(f"Args: Url {oidc_app_endpoint}, client id {oidc_client_id}")
 try:
     oidc_response = iam_client.create_open_id_connect_provider(
         Url=oidc_app_endpoint,

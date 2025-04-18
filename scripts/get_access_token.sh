@@ -19,7 +19,7 @@ if [ "$GRANT_TYPE" != "password" ] && [ "$GRANT_TYPE" != "client_credentials" ];
 fi
 
 if [ "$GRANT_TYPE" = "client_credentials" ]; then
-    ACCESS_TOKEN_RESPONSE=$(curl -s -k -X POST \
+    ACCESS_TOKEN_RESPONSE=$(curl -k \
         -H "Content-Type: application/x-www-form-urlencoded" \
         -d "grant_type=client_credentials" \
         -d "client_id=$OIDC_CLIENT" \
@@ -32,7 +32,7 @@ elif [ "$GRANT_TYPE" = "password" ]; then
     read -s -p "Password: " KC_PASSWORD
     echo
 
-    ACCESS_TOKEN_RESPONSE=$(curl -s -k -X POST \
+    ACCESS_TOKEN_RESPONSE=$(curl -k \
         -H "Content-Type: application/x-www-form-urlencoded" \
         -d "grant_type=password" \
         -d "client_id=$OIDC_CLIENT" \

@@ -113,7 +113,7 @@ python3 list_oidc_providers.py <s3_compatible_endpoint> <iam_client_id> <iam_cli
 - **[region]** - (Optional) Target region for S3 compatable operation. Defaults to ''.
 **Example:**
 ```bash
-python3 list_oidc_providers.py http://10.0.26.10:7480 OIDC_PROVIDER test123
+python3 list_oidc_providers.py http://x.x.x.x:7480 OIDC_PROVIDER test123
 ```
 
 ### `create_oidc_provider.py`
@@ -132,7 +132,7 @@ python3 create_oidc_provider.py <oidc_app_endpoint> <oidc_config_endpoint> <oidc
 - **[region]** - (Optional) Target region for S3 compatable operation. Defaults to ''.
 **Example:**
 ```bash
-python3 create_oidc_provider.py https://auth.keycloaktest.com:8443/realms/kc_id_broker https://auth.keycloaktest.com:8443/realms/kc_id_broker/.well-known/openid-configuration kc_idp http://10.0.26.10:7480 OIDC_PROVIDER test123
+python3 create_oidc_provider.py https://auth.keycloaktest.com:8443/realms/kc_id_broker https://auth.keycloaktest.com:8443/realms/kc_id_broker/.well-known/openid-configuration kc_idp http://x.x.x.x:7480 OIDC_PROVIDER test123
 ```
 
 ### `delete_oidc_provider.py`
@@ -149,7 +149,7 @@ python3 delete_oidc_provider.py <oidc_arn> <s3_compatible_endpoint> <iam_client_
 - **[region]** - (Optional) Target region for S3 compatable operation. Defaults to ''.
 **Example:**
 ```bash
-python3 delete_oidc_provider.py "arn:aws:iam:::oidc-provider/auth.keycloaktest.com:8443/realms/kc_id_broker" http://10.0.26.10:7480 OIDC_PROVIDER test123
+python3 delete_oidc_provider.py "arn:aws:iam:::oidc-provider/auth.keycloaktest.com:8443/realms/kc_id_broker" http://x.x.x.x:7480 OIDC_PROVIDER test123
 ```
 
 ### `list_roles.py`
@@ -165,7 +165,7 @@ python3 list_roles.py <s3_compatible_endpoint> <iam_client_id> <iam_client_passw
 - **[region]** - (Optional) Target region for S3 compatable operation. Defaults to ''.
 **Example:**
 ```bash
-python3 list_roles.py http://10.0.26.10:7480 OIDC_PROVIDER test123
+python3 list_roles.py http://x.x.x.x:7480 OIDC_PROVIDER test123
 ```
 
 ### `get_role.py`
@@ -182,7 +182,7 @@ python3 get_role.py <role_name> <s3_compatible_endpoint> <iam_client_id> <iam_cl
 - **[region]** - (Optional) Target region for S3 compatable operation. Defaults to ''.
 **Example:**
 ```bash
-python3 get_role.py S3Access http://10.0.26.10:7480 OIDC_PROVIDER test123
+python3 get_role.py S3Access http://x.x.x.x:7480 OIDC_PROVIDER test123
 ```
 
 ### `create_oidc_provider_role.py`
@@ -200,7 +200,7 @@ python3 create_oidc_provider_role.py <role_name> <oidc_app_endpoint> <s3_compati
 - **[region]** - (Optional) Target region for S3 compatable operation. Defaults to ''.
 **Example:**
 ```bash
-python3 create_oidc_provider_role.py S3Access https://auth.keycloaktest.com:8443/realms/kc_id_broker http://10.0.26.10:7480 OIDC_PROVIDER test123
+python3 create_oidc_provider_role.py S3Access https://auth.keycloaktest.com:8443/realms/kc_id_broker http://x.x.x.x:7480 OIDC_PROVIDER test123
 ```
 
 ### `delete_oidc_provider_role.py`
@@ -217,7 +217,7 @@ python3 delete_oidc_provider_role.py <role_name> <s3_compatible_endpoint> <iam_c
 - **[region]** - (Optional) Target region for S3 compatable operation. Defaults to ''.
 **Example:**
 ```bash
-python3 delete_oidc_provider_role.py S3Access http://10.0.26.10:7480 OIDC_PROVIDER test123
+python3 delete_oidc_provider_role.py S3Access http://x.x.x.x:7480 OIDC_PROVIDER test123
 ```
 
 ### `list_role_policy.py`
@@ -234,7 +234,7 @@ python3 list_role_policy.py <role_name> <s3_compatible_endpoint> <iam_client_id>
 - **[region]** - (Optional) Target region for S3 compatable operation. Defaults to ''.
 **Example:**
 ```bash
-python3 list_role_policy.py S3Access http://10.0.26.10:7480 OIDC_PROVIDER test123
+python3 list_role_policy.py S3Access http://x.x.x.x:7480 OIDC_PROVIDER test123
 ```
 
 ### `put_oidc_provider_role_policy.py`
@@ -252,7 +252,7 @@ python3 put_oidc_provider_role_policy.py <role_name> <policy_name> <s3_compatibl
 - **[region]** - (Optional) Target region for S3 compatable operation. Defaults to ''.
 **Example:**
 ```bash
-python3 put_oidc_provider_role_policy.py S3Access Policy1 http://10.0.26.10:7480 OIDC_PROVIDER test123
+python3 put_oidc_provider_role_policy.py S3Access Policy1 http://x.x.x.x:7480 OIDC_PROVIDER test123
 ```
 
 ### `delete_role_policy.py`
@@ -270,7 +270,7 @@ python3 delete_role_policy.py <role_name> <policy_name> <s3_compatible_endpoint>
 - **[region]** - (Optional) Target region for S3 compatable operation. Defaults to ''.
 **Example:**
 ```bash
-python3 delete_role_policy.py S3Access Policy1 http://10.0.26.10:7480 OIDC_PROVIDER test123
+python3 delete_role_policy.py S3Access Policy1 http://x.x.x.x:7480 OIDC_PROVIDER test123
 ```
 
 
@@ -294,8 +294,8 @@ python3 assume_role.py <operation: create|delete> <role_arn> <bucket_name> <oidc
 - **[region]** - (Optional) Target region for S3 compatable operation. Defaults to ''.
 **Example:**
 ```bash
-python3 assume_role.py create arn:aws:iam:::role/S3Access test-bucket-1 https://auth.keycloaktest.com:8443/realms/kc_id_broker/protocol/openid-connect/token kc_idp Xb1ItVaK4Zg7DUDKKNE4DYXePK5anovW openid http://10.0.26.10:7480 STS_CLIENT test321 us-east-1
-python3 assume_role.py delete arn:aws:iam:::role/S3Access test-bucket-1 https://auth.keycloaktest.com:8443/realms/kc_id_broker/protocol/openid-connect/token kc_idp Xb1ItVaK4Zg7DUDKKNE4DYXePK5anovW openid http://10.0.26.10:7480 STS_CLIENT test321 us-east-1
+python3 assume_role.py create arn:aws:iam:::role/S3Access test-bucket-1 https://auth.keycloaktest.com:8443/realms/kc_id_broker/protocol/openid-connect/token idp_app xxxxxxxxxxxxxxxxxxxxxxx openid http://x.x.x.x:7480 STS_CLIENT test321 us-east-1
+python3 assume_role.py delete arn:aws:iam:::role/S3Access test-bucket-1 https://auth.keycloaktest.com:8443/realms/kc_id_broker/protocol/openid-connect/token idp_app xxxxxxxxxxxxxxxxxxxxxxx openid http://x.x.x.x:7480 STS_CLIENT test321 us-east-1
 ```
 
 ## Additional Resources

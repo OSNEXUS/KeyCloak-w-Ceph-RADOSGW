@@ -281,6 +281,7 @@ python3 delete_role_policy.py S3Access Policy1 http://10.0.26.10:7480 OIDC_PROVI
 ```bash
 python3 assume_role.py <operation: create|delete> <role_arn> <bucket_name> <oidc_token_endpoint> <oidc_client_id> <oidc_client_secret> <access_token_scope> <s3_compatible_endpoint> <sts_client_id> <sts_client_password> [region='']
 ```
+- **operation** - `create` or `delete` bucket.
 - **role_arn** - Role to assume by ARN identifier.
 - **bucket_name** - Target bucket name.
 - **oidc_token_endpoint** - Token end point for identity provider

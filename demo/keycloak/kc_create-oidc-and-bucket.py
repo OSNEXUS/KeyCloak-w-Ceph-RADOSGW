@@ -48,7 +48,6 @@ realm_path = kc_server+"/realms/"+realm_name
 realm_endpoint = kc_endpoint+"/realms/"+realm_name
 # http://10.0.26.98:8080/realms/ceph-kc/protocol/openid-connect/auth
 # http://10.0.26.98:8080/realms/ceph-kc/broker/keycloak-oidc/endpoint
-auth_endpoint = realm_endpoint+"/protocol/openid-connect/auth"
 token_endpoint = realm_endpoint+"/protocol/openid-connect/token"
 introspect_endpoint = realm_endpoint+"/protocol/openid-connect/token/introspect"
 
@@ -124,6 +123,14 @@ try:
 except Exception as e:
     print(e)
 
+print("getting role s3access...")
+try:
+    get_response = iam_client.get_role(RoleName="S3Access")
+    print("Successfully got role S3Access...")
+    print(get_response)
+except Exception as e:
+    print(e)
+
 role_response = {}
 # You can Verify role creation from the CLI using:
 # radosgw-admin role list
@@ -139,13 +146,7 @@ try:
 except Exception as e:
     print(e)
 
-print("getting role s3access...")
-try:
-    get_response = iam_client.get_role(RoleName="S3Access")
-    print("Successfully got role S3Access...")
-    print(get_response)
-except Exception as e:
-    print(e)
+
 
 # this policy will allow s3access role to perform s3 operations
 role_policy = '''{"Version":"2012-10-17","Statement":{"Effect":"Allow","Action":"s3:*","Resource":"arn:aws:s3:::*"}}'''

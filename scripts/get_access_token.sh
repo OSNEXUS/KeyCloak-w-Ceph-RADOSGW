@@ -1,37 +1,58 @@
 #!/bin/bash
 
-# Check for required arguments
-if [ "$#" -ne 5 ]; then
-    echo "Usage: $0 <realm> <client> <client_secret> <server> [access_token_file]"
+if [ "$#" -lt 4 ] || [ "$#" -gt 6 ]; then
+    echo "Usage: get_access_token.sh <grant_type: password|client_credentials> <token-end-point> <client> <client_secret> [scope,openid] [access_token_file]"
     exit 1
 fi
 
-# Assign arguments to variables
-KC_REALM="$1"
-KC_CLIENT="$2"
-KC_CLIENT_SECRET="$3"
-KC_SERVER="$4"
-KC_TOKEN_FILE="$5"
+GRANT_TYPE="$1"
+TOKEN_ENDPOINT="$2"
+OIDC_CLIENT="$3"
+OIDC_CLIENT_SECRET="$4"
+SCOPE="${5:-openid}"
+ACCESS_TOKEN_FILE="${6:-}"
 
-# Request Tokens for credentials
-KC_RESPONSE=$( \
-curl -s -k -X POST \
--H "Content-Type: application/x-www-form-urlencoded" \
--d "scope=openid" \
--d "grant_type=client_credentials" \
--d "client_id=$KC_CLIENT" \
--d "client_secret=$KC_CLIENT_SECRET" \
-"http://$KC_SERVER/realms/$KC_REALM/protocol/openid-connect/token" 2>/dev/null\
-| jq -r .access_token
-)
+# Validate grant_type
+if [ "$GRANT_TYPE" != "password" ] && [ "$GRANT_TYPE" != "client_credentials" ]; then
+    echo "Error: grant_type must be 'password' or 'client_credentials'"
+    exit 1
+fi
+
+if [ "$GRANT_TYPE" = "client_credentials" ]; then
+    ACCESS_TOKEN_RESPONSE=$(curl -k \
+        -H "Content-Type: application/x-www-form-urlencoded" \
+        -d "grant_type=client_credentials" \
+        -d "client_id=$OIDC_CLIENT" \
+        -d "client_secret=$OIDC_CLIENT_SECRET" \
+        -d "scope=$SCOPE" \
+        "$TOKEN_ENDPOINT")
+elif [ "$GRANT_TYPE" = "password" ]; then
+    # Prompt user for credentials
+    read -p "Username: " KC_USERNAME
+    read -s -p "Password: " KC_PASSWORD
+    echo
+
+    ACCESS_TOKEN_RESPONSE=$(curl -k \
+        -H "Content-Type: application/x-www-form-urlencoded" \
+        -d "grant_type=password" \
+        -d "client_id=$OIDC_CLIENT" \
+        -d "client_secret=$OIDC_CLIENT_SECRET" \
+        -d "username=$KC_USERNAME" \
+        -d "password=$KC_PASSWORD" \
+        -d "scope=$SCOPE" \
+        "$TOKEN_ENDPOINT")
+fi
+
+echo "$ACCESS_TOKEN_RESPONSE"
 
 # Handle token output
-if [ -n "$KC_RESPONSE" ] && [ "$KC_RESPONSE" != "null" ]; then
-    if [ -n "$KC_TOKEN_FILE" ]; then
-        echo "$KC_RESPONSE" > "$KC_TOKEN_FILE"
-        echo "Access token saved to $KC_TOKEN_FILE"
+if [ -n "$ACCESS_TOKEN_RESPONSE" ] && [ "$ACCESS_TOKEN_RESPONSE" != "null" ]; then
+    ACCESS_TOKEN=$(echo "$ACCESS_TOKEN_RESPONSE" | jq -r .access_token)
+    if [ -n "$ACCESS_TOKEN_FILE" ]; then
+        echo "$ACCESS_TOKEN" > "$ACCESS_TOKEN_FILE"
+        echo "Access token saved to $ACCESS_TOKEN_FILE"
     else
-        echo "$KC_RESPONSE"
+        echo "$ACCESS_TOKEN"
     fi
 else
     echo "Failed to retrieve access token." >&2

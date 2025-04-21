@@ -1,29 +1,22 @@
 #!/bin/bash
 
-## Check for required arguments
-#if [ "$#" -ne 4 ]; then
-#    echo "Usage: $0 <realm> <client> <client_secret> <server>"
-#    exit 1
-#fi
-#
-## Assign arguments to variables
-#KC_REALM="$1"
-#KC_CLIENT="$2"
-#KC_CLIENT_SECRET="$3"
-#KC_SERVER="$4"
-
-if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <oidc-config-endpoint>"
+# Check for required arguments
+if [ "$#" -ne 4 ]; then
+    echo "Usage: $0 <realm> <client> <client_secret> <server>"
     exit 1
 fi
-OIDC_CONFIG_ENDPOINT="$1"
+
+# Assign arguments to variables
+KC_REALM="$1"
+KC_CLIENT="$2"
+KC_CLIENT_SECRET="$3"
+KC_SERVER="$4"
 
 # Extract 'jwks_uri' value from JSON response
-# "http://$KC_SERVER/realms/$KC_REALM/.well-known/openid-configuration"
 JWKS_URI=$(curl -k -s \
      -X GET \
      -H "Content-Type: application/x-www-form-urlencoded" \
-     "$OIDC_CONFIG_ENDPOINT" \
+     "http://$KC_SERVER/realms/$KC_REALM/.well-known/openid-configuration" \
      | jq -r '.jwks_uri')
 
 # Check if JWKS_URI was found
